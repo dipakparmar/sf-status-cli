@@ -1,0 +1,44 @@
+{
+  "name": "sf-status",
+  "version": "1.0.0",
+  "description": "CLI for the Salesforce Trust Status API",
+  "type": "module",
+  "bin": {
+    "sf-status": "bin/sf-status.js"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "start": "node bin/sf-status.js",
+    "test": "node bin/sf-status.js --help > /dev/null && node bin/sf-status.js status --json > /dev/null && echo 'smoke tests passed'"
+  },
+  "keywords": [
+    "salesforce",
+    "status",
+    "cli",
+    "trust",
+    "incidents",
+    "maintenance"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dipakparmar/sf-status-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dipakparmar/sf-status-cli/issues"
+  },
+  "devDependencies": {
+    "semantic-release": "^25.0.3",
+    "@semantic-release/changelog": "^6.0.0",
+    "@semantic-release/git": "^10.0.0"
+  }
+}

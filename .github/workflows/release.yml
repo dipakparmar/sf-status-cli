@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Release
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: "github-actions[bot]"
+          GIT_AUTHOR_EMAIL: "github-actions[bot]@users.noreply.github.com"
+          GIT_COMMITTER_NAME: "github-actions[bot]"
+          GIT_COMMITTER_EMAIL: "github-actions[bot]@users.noreply.github.com"
+        run: |
+          BEFORE=$(node -p "require('./package.json').version")
+          bunx semantic-release@25.0.3
+          AFTER=$(node -p "require('./package.json').version")
+          if [ "$BEFORE" != "$AFTER" ]; then
+            echo "released=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js for npm publish
+        if: steps.release.outputs.released == 'true'
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Upgrade npm to latest
+        if: steps.release.outputs.released == 'true'
+        run: npm install -g npm@latest
+      - name: Publish to GitHub Packages
+        if: steps.release.outputs.released == 'true'
+        run: npm publish --access public --provenance --tag latest
+
